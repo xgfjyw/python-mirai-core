@@ -152,14 +152,12 @@ class Updater:
         """
         await shutdown_event()
         await self.bot.release()
+        self.loop.stop()
         raise Shutdown()
 
     def handle_exception(self, loop, context):
         # context["message"] will always be there; but context["exception"] may not
         msg = context.get("exception", context["message"])
-        if isinstance(msg, Shutdown):
-            loop.stop()
-            return
         self.logger.exception('Unhandled exception: ', exc_info=msg)
 
 

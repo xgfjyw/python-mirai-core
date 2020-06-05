@@ -25,8 +25,6 @@ def retry_once(func):
         try:
             return await func(self, *args, **kwargs)
         except (NetworkException, SessionException, AuthenticationException):
-            if self.stop:
-                return
             self.logger.exception('Trying handshake due to the following exception')
         try:
             await self.handshake()
@@ -51,7 +49,6 @@ class Bot:
         self.session = HttpClient(self.base_url, loop=self.loop)
         self.session_key = ''
         self.logger = create_logger('Bot')
-        self.stop = False
 
     async def handshake(self):
         """
@@ -83,7 +80,6 @@ class Bot:
         Post session_key to release the session
         Needs to be called manually if Updater is not used
         """
-        self.stop = True
         await self.session.post('/release',
                                 data={
                                     'sessionKey': self.session_key,
