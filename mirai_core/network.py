@@ -62,6 +62,8 @@ class HttpClient:
         self.session = aiohttp.ClientSession(timeout=self.timeout, loop=loop)
         self.logger = create_logger('Network')
         self.loop = loop
+        self.ws = None
+        self.shutdown = False
 
     async def get(self, url, headers=None, params=None):
         """
@@ -128,17 +130,22 @@ class HttpClient:
         :param ws_close_handler: callback for connection close
         """
         try:
-            ws = await self.session.ws_connect(self.base_url + url)
+            self.ws = await self.session.ws_connect(self.base_url + url)
             self.logger.debug('Websocket established')
             while True:
-                msg = await ws.receive()
+                msg = await self.ws.receive()
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     self.logger.debug(f'Websocket received {msg}')
                     await handler(msg.json())
+                elif msg.type == aiohttp.WSMsgType.CLOSING:
+                    self.logger.debug('Websocket closing')
+                    continue
                 elif msg.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('Websocket closed')
-                    await ws_close_handler()
-                    return
+                    if self.shutdown:
+                        return
+                    url = await ws_close_handler()
+                    self.ws = await self.session.ws_connect(self.base_url + url)
                 else:
                     self.logger.warning(f'Received unexpected type: {msg.type}')
         except client_exceptions.ClientConnectorError:
@@ -148,4 +155,7 @@ class HttpClient:
         """
         Close session
         """
+        self.shutdown = True
+        if self.ws:
+            await self.ws.close()
         await self.session.close()
