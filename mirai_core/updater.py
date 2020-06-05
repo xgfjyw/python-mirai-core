@@ -124,6 +124,8 @@ class Updater:
             await asyncio.sleep(interval)
             try:
                 results: List[BaseEvent] = await self.bot.fetch_message(count)
+                if results is None and self.bot.stop:
+                    return
                 if len(results) > 0:
                     self.logger.debug('Received messages:\n' + '\n'.join([str(result) for result in results]))
                 for result in results:
@@ -155,6 +157,9 @@ class Updater:
     def handle_exception(self, loop, context):
         # context["message"] will always be there; but context["exception"] may not
         msg = context.get("exception", context["message"])
+        if isinstance(msg, Shutdown):
+            loop.stop()
+            return
         self.logger.exception('Unhandled exception: ', exc_info=msg)
 
 
