@@ -124,8 +124,6 @@ class Updater:
             await asyncio.sleep(interval)
             try:
                 results: List[BaseEvent] = await self.bot.fetch_message(count)
-                if results is None and self.bot.stop:
-                    return
                 if len(results) > 0:
                     self.logger.debug('Received messages:\n' + '\n'.join([str(result) for result in results]))
                 for result in results:
