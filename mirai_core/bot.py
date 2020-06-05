@@ -650,12 +650,14 @@ class Bot:
         if listen not in ('all', 'event', 'message'):
             raise ValueError("listen must be one of 'all', 'event' or 'message'")
         if ws_close_handler is None:
-            ws_close_handler = await self.ws_close_handler(listen)
+            ws_close_handler = await self.ws_close_handler(handler, listen)
         await self.session.websocket(f'/{listen}?sessionKey={self.session_key}',
                                      self._websocket_handler(handler), ws_close_handler)
 
-    async def ws_close_handler(self, listen):
-        async def handler(self):
+    async def ws_close_handler(self, handler, listen):
+        async def _handler(shutdown):
+            if shutdown:
+                return
             await self.handshake()
-            return f'/{listen}?sessionKey={self.session_key}'
-        return handler
+            await self.create_websocket(handler, listen=listen)
+        return _handler

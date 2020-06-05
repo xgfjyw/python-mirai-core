@@ -142,10 +142,8 @@ class HttpClient:
                     continue
                 elif msg.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('Websocket closed')
-                    if self.shutdown:
-                        return
-                    url = await ws_close_handler()
-                    self.ws = await self.session.ws_connect(self.base_url + url)
+                    await ws_close_handler(self.shutdown)
+                    return
                 else:
                     self.logger.warning(f'Received unexpected type: {msg.type}')
         except client_exceptions.ClientConnectorError:
