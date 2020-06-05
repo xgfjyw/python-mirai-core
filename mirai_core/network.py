@@ -139,7 +139,6 @@ class HttpClient:
                     await handler(msg.json())
                 elif msg.type == aiohttp.WSMsgType.CLOSING:
                     self.logger.debug('Websocket closing')
-                    continue
                 elif msg.type == aiohttp.WSMsgType.CLOSED:
                     self.logger.debug('Websocket closed')
                     await ws_close_handler(self.shutdown)

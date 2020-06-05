@@ -32,7 +32,6 @@ class Updater:
         self.logger.debug('Run tasks')
         tasks = [
             self.handshake()
-            self.test()
         ]
         if not self.use_websocket:
             tasks.append(self.message_polling())
