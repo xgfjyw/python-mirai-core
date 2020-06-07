@@ -149,8 +149,11 @@ class Updater:
         :param shutdown_event: callable
         """
         await shutdown_event()
-        await self.bot.release()
-        await self.bot.session.close()
+        try:
+            await self.bot.release()
+            await self.bot.session.close()
+        except:
+            pass
         self.loop.stop()
         raise Shutdown()
 
