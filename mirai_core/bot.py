@@ -168,6 +168,18 @@ class Bot:
         return bot_message
 
     @retry_once
+    async def send_image_message(self, target: Group, message: str='') -> BotMessage:
+        portal = '/sendImageMessage'
+        data = {
+            'sessionKey': self.session_key,
+            'target': self._handle_target_as(target),
+            'urls': [message]
+            }
+        result = await self.session.post(portal, data=data)
+        bot_message = BotMessage.parse_obj(result)
+        return bot_message
+
+    @retry_once
     async def recall(self, source: Union[Source, int]) -> None:
         """
         Recall a message

@@ -25,7 +25,7 @@ class HttpClient:
     HttpClient implemented by aiohttp
     """
 
-    DEFAULT_TIMEOUT = 5
+    DEFAULT_TIMEOUT = 8
 
     @staticmethod
     async def _check_response(result: aiohttp.ClientResponse, url, method) -> Dict:
@@ -118,7 +118,7 @@ class HttpClient:
                                                headers=headers, data=data)
         except client_exceptions.ClientConnectorError:
             raise NetworkException('Unable to reach Mirai console')
-        self.logger.debug(f'Image uploaded: {response.text}')
+        self.logger.debug(f'Image uploaded: {await response.text()}')
         return await response.json()
 
     async def websocket(self, url: str, handler: callable, ws_close_handler: callable):
