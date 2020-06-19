@@ -25,7 +25,7 @@ class HttpClient:
     HttpClient implemented by aiohttp
     """
 
-    DEFAULT_TIMEOUT = 8
+    DEFAULT_TIMEOUT = 5
 
     @staticmethod
     async def _check_response(result: aiohttp.ClientResponse, url, method) -> Dict:
@@ -82,7 +82,7 @@ class HttpClient:
             raise NetworkException('Unable to reach Mirai console')
         return await HttpClient._check_response(response, url, 'get')
 
-    async def post(self, url, headers=None, data=None):
+    async def post(self, url, headers=None, data=None, timeout=None):
         """
         send http post request
 
@@ -94,7 +94,10 @@ class HttpClient:
 
         self.logger.debug(f'post {url} with data: {str(data)}')
         try:
-            response = await self.session.post(self.base_url + url, headers=headers, json=data)
+            if timeout:
+                response = await self.session.post(self.base_url + url, headers=headers, json=data, timeout=timeout)
+            else:
+                response = await self.session.post(self.base_url + url, headers=headers, json=data)
         except client_exceptions.ClientConnectorError:
             raise NetworkException('Unable to reach Mirai console')
         return await HttpClient._check_response(response, url, 'post')
