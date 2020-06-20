@@ -91,13 +91,13 @@ class At(BaseMessageComponent):
     target: int  # target qq number
     display: str  # display name (only used for inbound at), '@' already included
 
-    def __init__(self, target, **kwargs):
+    def __init__(self, target, display="", **kwargs):
         """
         Construct at component
 
         :param target: target qq number
         """
-        super().__init__(target=target, **kwargs)
+        super().__init__(target=target, display=display, **kwargs)
 
     def __str__(self):
         return self.display
