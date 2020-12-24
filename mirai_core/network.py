@@ -18,6 +18,7 @@ error_code = {
                 400: lambda: BadRequestException('Bad Request, please check arguments/url'),
             }
 
+logger = create_logger('_check_response')
 
 class HttpClient:
     """
@@ -45,7 +46,9 @@ class HttpClient:
         status_code = result.get('code')
         if method == 'post':
             if status_code is None:
-                raise ServerException('Empty response')
+                # raise ServerException('Empty response')
+                logger.warning(f'status_code is None')
+                status_code = 0
             if status_code == 0:  # normal
                 return result
         elif method == 'get':
